@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0-*",
+  "description": "NJsonApiCore Web MVC5 Class Library",
+  "authors": [ "Rob" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+  "frameworks": {
+    "net46": {
+      "dependencies": {
+        "Microsoft.AspNet.Mvc": "5.2.3"
+      }
+    }
+  },
+  "dependencies": {
+    "NJsonApiCore": "1.0.0-*"
+  },
+}

@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0-*",
+  "description": "NJsonApiCore Web MVC5 Class Library",
+  "authors": [ "Rob" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+  "commands": {
+    "iisexpress": "c:\\\\Program Files (x86)\\\\IIS Express\\\\iisexpress /path:C:\\Projects\\NJsonApiCore\\src\\NJsonApiCore.Web.MVC5.HelloWorld\\bin /port:12345"
+  },
+  "frameworks": {
+    "net46": {
+      "dependencies": {
+        "Microsoft.Owin": "3.0.1",
+        "Microsoft.AspNet.WebApi": "5.2.3",
+        "Microsoft.AspNet.Mvc": "5.2.3"
+      },
+      "frameworkAssemblies": {
+        "System.Web": "4.0.0.0"
+      }
+    }
+  },
+  "dependencies": {
+    "NJsonApiCore": "1.0.0-*",
+    "NJsonApiCore.Web.MVC5": "1.0.0-*"
+  }
+}
