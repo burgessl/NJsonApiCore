@@ -9,17 +9,17 @@ namespace NJsonApi.Test.Fakes
 {
     internal class FakeLinkBuilder : ILinkBuilder
     {
-        public ILink FindResourceSelfLink(Context context, string id, IResourceMapping resourceMapping)
+        public ILink FindResourceSelfLink(Context context, ILinkValueProvider valueProvider, IResourceMapping resourceMapping)
         {
             return new SimpleLink(new Uri("http://example.com"));
         }
 
-        public ILink RelationshipRelatedLink(Context context, string parentId, IResourceMapping resourceMapping, IRelationshipMapping linkMapping)
+        public ILink RelationshipRelatedLink(Context context, ILinkValueProvider valueProvider, IResourceMapping resourceMapping, IRelationshipMapping linkMapping)
         {
             return new SimpleLink(new Uri("http://example.com"));
         }
 
-        public ILink RelationshipSelfLink(Context context, string resourceId, IResourceMapping resourceMapping, IRelationshipMapping linkMapping)
+        public ILink RelationshipSelfLink(Context context, ILinkValueProvider valueProvider, IResourceMapping resourceMapping, IRelationshipMapping linkMapping)
         {
             return new SimpleLink(new Uri("http://example.com"));
         }

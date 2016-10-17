@@ -16,11 +16,13 @@ namespace NJsonApi.Serialization
         private const string MetaCountAttribute = "count";
         private readonly IConfiguration configuration;
         private readonly ILinkBuilder linkBuilder;
+        private readonly ILinkValueProviderFactory linkValueProviderFactory;
 
-        public TransformationHelper(IConfiguration configuration, ILinkBuilder linkBuilder)
+        public TransformationHelper(IConfiguration configuration, ILinkBuilder linkBuilder, ILinkValueProviderFactory linkValueProviderFactory)
         {
             this.configuration = configuration;
             this.linkBuilder = linkBuilder;
+            this.linkValueProviderFactory = linkValueProviderFactory;
         }
 
         public IResourceRepresentation ChooseProperResourceRepresentation(object resource, IEnumerable<SingleResource> representationList)
@@ -164,17 +166,18 @@ namespace NJsonApi.Serialization
             result.Id = resourceMapping.IdGetter(objectGraph).ToString();
             result.Type = resourceMapping.ResourceType;
             result.Attributes = resourceMapping.GetAttributes(objectGraph);
-            result.Links = new Dictionary<string, ILink>() { { "self", linkBuilder.FindResourceSelfLink(context, result.Id, resourceMapping) } };
+            var valueProvider = linkValueProviderFactory.Create(result);
+            result.Links = new Dictionary<string, ILink>() { { "self", linkBuilder.FindResourceSelfLink(context, valueProvider, resourceMapping) } };
 
             if (resourceMapping.Relationships.Any())
             {
-                result.Relationships = CreateRelationships(objectGraph, result.Id, resourceMapping, context);
+                result.Relationships = CreateRelationships(objectGraph, valueProvider, resourceMapping, context);
             }
 
             return result;
         }
 
-        public Dictionary<string, Relationship> CreateRelationships(object objectGraph, string parentId, IResourceMapping resourceMapping, Context context)
+        public Dictionary<string, Relationship> CreateRelationships(object objectGraph, ILinkValueProvider parentValueProvider, IResourceMapping resourceMapping, Context context)
         {
             var relationships = new Dictionary<string, Relationship>();
             foreach (var linkMapping in resourceMapping.Relationships)
@@ -183,8 +186,8 @@ namespace NJsonApi.Serialization
                 var rel = new Relationship();
                 var relLinks = new RelationshipLinks();
 
-                relLinks.Self = linkBuilder.RelationshipSelfLink(context, parentId, resourceMapping, linkMapping);
-                relLinks.Related = linkBuilder.RelationshipRelatedLink(context, parentId, resourceMapping, linkMapping);
+                relLinks.Self = linkBuilder.RelationshipSelfLink(context, parentValueProvider, resourceMapping, linkMapping);
+                relLinks.Related = linkBuilder.RelationshipRelatedLink(context, parentValueProvider, resourceMapping, linkMapping);
 
                 if (!linkMapping.IsCollection)
                 {

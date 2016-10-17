@@ -49,6 +49,7 @@ namespace NJsonApi.Web.MVCCore.HelloWorld
             services.AddSingleton<IJsonApiTransformer, JsonApiTransformer >();
             services.AddSingleton(nJsonApiConfig);
             services.AddSingleton<TransformationHelper>();
+            services.AddSingleton<ILinkValueProviderFactory, DefaultLinkValueProviderFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

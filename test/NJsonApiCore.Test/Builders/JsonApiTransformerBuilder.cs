@@ -25,7 +25,7 @@ namespace NJsonApi.Test.Builders
         public JsonApiTransformer Build()
         {
             var serializer = JsonSerializerBuilder.Build();
-            var transformationHelper = new TransformationHelper(config, linkBuilder);
+            var transformationHelper = new TransformationHelper(config, linkBuilder, new DefaultLinkValueProviderFactory());
             return new JsonApiTransformer(serializer, config, transformationHelper);
         }
     }

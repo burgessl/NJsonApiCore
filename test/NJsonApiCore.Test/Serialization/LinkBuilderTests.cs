@@ -5,6 +5,7 @@ using NJsonApi.Web.MVCCore.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NJsonApi.Serialization.Representations.Resources;
 using Xunit;
 
 namespace NJsonApi.Test.Serialization
@@ -27,9 +28,10 @@ namespace NJsonApi.Test.Serialization
             // Arrange
             var linkBuilder = GetLinkBuilder();
             var resourceMap = configuration.GetMapping(typeof(Post));
+            var resource = new SingleResource { Id = "1" };
 
             // Act
-            var result = linkBuilder.FindResourceSelfLink(context, "1", resourceMap);
+            var result = linkBuilder.FindResourceSelfLink(context, new DefaultLinkValueProvider(resource), resourceMap);
 
             // Assert
             Assert.Equal("http://www.example.com/posts/1", result.Href);
@@ -42,9 +44,10 @@ namespace NJsonApi.Test.Serialization
             var linkBuilder = GetLinkBuilder();
             var resourceMap = configuration.GetMapping(typeof(Post));
             var relationship = resourceMap.Relationships.Single(x => x.RelatedBaseResourceType == "authors");
+            var resource = new SingleResource { Id = "1" };
 
             // Act
-            var result = linkBuilder.RelationshipSelfLink(context, "1", resourceMap, relationship);
+            var result = linkBuilder.RelationshipSelfLink(context, new DefaultLinkValueProvider(resource), resourceMap, relationship);
 
             // Assert
             Assert.Equal("http://www.example.com/posts/1/relationships/author", result.Href);
@@ -57,9 +60,10 @@ namespace NJsonApi.Test.Serialization
             var linkBuilder = GetLinkBuilder();
             var resourceMap = configuration.GetMapping(typeof(Post));
             var relationship = resourceMap.Relationships.Single(x => x.RelatedBaseResourceType == "authors");
+            var resource = new SingleResource { Id = "1" };
 
             // Act
-            var result = linkBuilder.RelationshipRelatedLink(context, "1", resourceMap, relationship);
+            var result = linkBuilder.RelationshipRelatedLink(context, new DefaultLinkValueProvider(resource), resourceMap, relationship);
 
             // Assert
             Assert.Equal("http://www.example.com/posts/1/author", result.Href);

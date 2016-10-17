@@ -36,7 +36,7 @@ namespace NJsonApi.Test.Serialization
                 new Uri("http://dummy:4242/posts"),
                 new string[] { "authors.comments" });
 
-            var transformationHelper = new TransformationHelper(config, new FakeLinkBuilder());
+            var transformationHelper = new TransformationHelper(config, new FakeLinkBuilder(), new DefaultLinkValueProviderFactory());
 
             // Act
             var result = transformationHelper.CreateIncludedRepresentations(sourceList, mapping, context);
@@ -75,7 +75,7 @@ namespace NJsonApi.Test.Serialization
                 new Uri("http://dummy:4242/posts"),
                 new string[] { "authors.comments" });
 
-            var transformationHelper = new TransformationHelper(config, new FakeLinkBuilder());
+            var transformationHelper = new TransformationHelper(config, new FakeLinkBuilder(), new DefaultLinkValueProviderFactory());
 
             // Act
             var result = transformationHelper.CreateIncludedRepresentations(sourceList, mapping, context);
@@ -104,7 +104,7 @@ namespace NJsonApi.Test.Serialization
             var mapping = config.GetMapping(typeof(Post));
             var context = new Context(new Uri("http://dummy:4242/posts"));
 
-            var transformationHelper = new TransformationHelper(config, new FakeLinkBuilder());
+            var transformationHelper = new TransformationHelper(config, new FakeLinkBuilder(), new DefaultLinkValueProviderFactory());
 
             // Act
             var result = transformationHelper.CreateIncludedRepresentations(sourceList, mapping, context);

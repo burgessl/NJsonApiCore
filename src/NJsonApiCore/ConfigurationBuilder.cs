@@ -4,6 +4,7 @@ using NJsonApi.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace NJsonApi
@@ -45,7 +46,8 @@ namespace NJsonApi
 
             if (!HasOnlyOneGetMethod<TController>())
             {
-                throw new InvalidOperationException($"The controller being registered ({typeof(TController).FullName}) can only have one GET method with single id parameter for the resource type {typeof(TResource).FullName}.");
+                throw new InvalidOperationException(
+                    $"The controller being registered ({typeof(TController).FullName}) can only have one GET method with single id parameter for the resource type {typeof(TResource).FullName}.");
             }
 
             if (DoesModelHaveReservedWordsRecursive(resource))
@@ -78,9 +80,7 @@ namespace NJsonApi
                .Where(m =>
                    m.CustomAttributes.Any(y => y.AttributeType.Name == "HttpGetAttribute") // This isn't very nice but it works across MvcCore and Mvc5
                    &&
-                   m.GetParameters().Any(p => p.Name == "id")
-                   &&
-                   m.GetParameters().Count() == 1)
+                   m.GetParameters().Any(p => p.Name == "id"))
                .Count() == 1;
         }
 
