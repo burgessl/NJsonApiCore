@@ -22,6 +22,30 @@ namespace NJsonApi.Test.Builders
             }
         }
 
+        public static Author Clarke
+        {
+            get
+            {
+                return new Author
+                {
+                    Id = 2,
+                    Name = "Arthur C. Clarke"
+                };
+            }
+        }
+
+        public static SpecialAuthor DerivedAuthor
+        {
+            get
+            {
+                return new SpecialAuthor
+                {
+                    Id = 3,
+                    Name = "Derived Author"
+                };
+            }
+        }
+
         public PostBuilder()
         {
             this.post = new Post()
@@ -49,13 +73,14 @@ namespace NJsonApi.Test.Builders
             return this;
         }
 
-        public PostBuilder WithComment(int id, string body)
+        public PostBuilder WithComment(int id, string body, Author author)
         {
             var comment = new Comment()
             {
                 Body= body,
                 Id = id,
-                Post = post
+                Post = post,
+                Author = author
             };
 
             post.Replies.Add(comment);

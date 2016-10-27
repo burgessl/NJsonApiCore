@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NJsonApi.Utils;
 
 namespace NJsonApi.Serialization
 {
@@ -33,14 +34,29 @@ namespace NJsonApi.Serialization
         public List<SingleResource> CreateIncludedRepresentations(List<object> primaryResourceList, IResourceMapping resourceMapping, Context context)
         {
             var includedList = new List<SingleResource>();
-            var alreadyVisitedObjects = new HashSet<object>(primaryResourceList);
+
+            var primaryResourceIdentifiers = primaryResourceList.Select(x =>
+            {
+                var innerResourceMapping = configuration.GetMapping(x);
+                var mappingToUse = innerResourceMapping ?? resourceMapping;
+                var id = new SingleResourceIdentifier
+                {
+                    Id = mappingToUse.IdGetter(x).ToString(),
+                    Type = mappingToUse.ResourceType
+                };
+
+                return id;
+            });
+
+            var alreadyVisitedObjects = new HashSet<SingleResourceIdentifier>(primaryResourceIdentifiers, new SingleResourceIdentifierComparer());
 
             foreach (var resource in primaryResourceList)
             {
+                var innerResourceMapping = configuration.GetMapping(resource);
                 includedList.AddRange(
                     AppendIncludedRepresentationRecursive(
                         resource,
-                        resourceMapping,
+                        innerResourceMapping ?? resourceMapping,
                         alreadyVisitedObjects,
                         context));
             }
@@ -55,7 +71,7 @@ namespace NJsonApi.Serialization
         private List<SingleResource> AppendIncludedRepresentationRecursive(
             object resource,
             IResourceMapping resourceMapping,
-            HashSet<object> alreadyVisitedObjects,
+            HashSet<SingleResourceIdentifier> alreadyVisitedObjects,
             Context context,
             string parentRelationshipPath = "")
         {
@@ -78,12 +94,18 @@ namespace NJsonApi.Serialization
 
                 foreach (var relatedResource in relatedResources)
                 {
-                    if (alreadyVisitedObjects.Contains(relatedResource))
+                    var relatedResourceId = new SingleResourceIdentifier
+                    {
+                        Id = relationship.ResourceMapping.IdGetter(relatedResource).ToString(),
+                        Type = relationship.ResourceMapping.ResourceType
+                    };
+
+                    if (alreadyVisitedObjects.Contains(relatedResourceId))
                     {
                         continue;
                     }
 
-                    alreadyVisitedObjects.Add(relatedResource);
+                    alreadyVisitedObjects.Add(relatedResourceId);
                     includedResources.Add(
                         CreateResourceRepresentation(relatedResource, relationship.ResourceMapping, context));
 
@@ -99,11 +121,11 @@ namespace NJsonApi.Serialization
         {
             if (string.IsNullOrEmpty(parentRelationshipPath))
             {
-                return relationship.RelatedBaseResourceType;
+                return relationship.RelationshipName;
             }
             else
             {
-                return $"{parentRelationshipPath}.{relationship.RelatedBaseResourceType}";
+                return $"{parentRelationshipPath}.{relationship.RelationshipName}";
             }
         }
 
@@ -161,14 +183,25 @@ namespace NJsonApi.Serialization
         {
             var result = new SingleResource();
 
-            result.Id = resourceMapping.IdGetter(objectGraph).ToString();
-            result.Type = resourceMapping.ResourceType;
-            result.Attributes = resourceMapping.GetAttributes(objectGraph);
-            result.Links = new Dictionary<string, ILink>() { { "self", linkBuilder.FindResourceSelfLink(context, result.Id, resourceMapping) } };
+            var innerObjectType = Reflection.GetObjectType(objectGraph);
+            var innerResourceMapping = configuration.GetMapping(innerObjectType);
 
-            if (resourceMapping.Relationships.Any())
+            if (innerResourceMapping == null)
             {
-                result.Relationships = CreateRelationships(objectGraph, result.Id, resourceMapping, context);
+                innerResourceMapping = resourceMapping;
+            }
+
+            result.Id = innerResourceMapping.IdGetter(objectGraph).ToString();
+            result.Type = innerResourceMapping.ResourceType;
+            result.Attributes = innerResourceMapping.GetAttributes(objectGraph);
+            result.Links = new Dictionary<string, ILink>()
+            {
+                {"self", linkBuilder.FindResourceSelfLink(context, result.Id, innerResourceMapping)}
+            };
+
+            if (innerResourceMapping.Relationships.Any())
+            {
+                result.Relationships = CreateRelationships(objectGraph, result.Id, innerResourceMapping, context);
             }
 
             return result;
