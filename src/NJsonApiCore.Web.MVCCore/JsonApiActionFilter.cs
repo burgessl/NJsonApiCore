@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using NJsonApi.Infrastructure;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace NJsonApi.Web
 {
@@ -19,15 +21,18 @@ namespace NJsonApi.Web
         private readonly IJsonApiTransformer jsonApiTransformer;
         private readonly IConfiguration configuration;
         private readonly JsonSerializer serializer;
+        private readonly ILogger logger;
 
         public JsonApiActionFilter(
             IJsonApiTransformer jsonApiTransformer,
             IConfiguration configuration,
-            JsonSerializer serializer)
+            JsonSerializer serializer,
+            ILogger<JsonApiActionFilter> logger)
         {
             this.jsonApiTransformer = jsonApiTransformer;
             this.configuration = configuration;
             this.serializer = serializer;
+            this.logger = logger;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -120,6 +125,8 @@ namespace NJsonApi.Web
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             if (context.Result == null || context.Result is NoContentResult)
             {
                 return;
@@ -155,6 +162,9 @@ namespace NJsonApi.Web
                     relationshipPaths);
                 responseResult.Value = jsonApiTransformer.Transform(responseResult.Value, jsonApiContext);
             }
+
+            stopwatch.Stop();
+            logger.LogInformation("Filter finished in {0}ms", stopwatch.Elapsed.TotalMilliseconds);
         }
 
         private string[] FindRelationshipPathsToInclude(HttpRequest request)

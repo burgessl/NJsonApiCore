@@ -263,7 +263,7 @@ namespace NJsonApi.Serialization
         public Dictionary<string, ILink> GetTopLevelLinks(Uri requestUri)
         {
             var topLevel = new Dictionary<string, ILink>();
-            topLevel.Add("self", new SimpleLink(requestUri));
+            topLevel.Add("self", new SimpleLink(requestUri.AbsoluteUri));
             return topLevel;
         }
     }

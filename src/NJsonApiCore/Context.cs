@@ -4,26 +4,29 @@ namespace NJsonApi
 {
     public class Context
     {
+        private readonly string baseUri;
+
         public Context(Uri requestUri)
+            :this(requestUri, new string[0])
         {
-            IncludedResources = new string[0];
-            RequestUri = requestUri;
         }
 
         public Context(Uri requestUri, string[] includedResources)
         {
             RequestUri = requestUri;
             IncludedResources = includedResources;
+            var authority = (UriComponents.Scheme | UriComponents.UserInfo | UriComponents.Host | UriComponents.Port);
+            baseUri = new Uri(RequestUri.GetComponents(authority, UriFormat.SafeUnescaped)).AbsoluteUri;
         }
+
 
         public Uri RequestUri { get; private set; }
         public string[] IncludedResources { get; set; }
 
-        public Uri BaseUri {
+        public string BaseUri {
             get
             {
-                var authority = (UriComponents.Scheme | UriComponents.UserInfo | UriComponents.Host | UriComponents.Port);
-                return new Uri(RequestUri.GetComponents(authority, UriFormat.SafeUnescaped));
+                return baseUri;
             }
         }
     }

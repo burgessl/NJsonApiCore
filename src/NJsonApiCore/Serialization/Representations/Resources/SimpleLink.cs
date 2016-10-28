@@ -11,9 +11,9 @@ namespace NJsonApi.Serialization.Representations
         {
         }
 
-        public SimpleLink(Uri href)
+        public SimpleLink(string href)
         {
-            this.Href = href.AbsoluteUri;
+            this.Href = href;
         }
 
         public string Href { get; set; }

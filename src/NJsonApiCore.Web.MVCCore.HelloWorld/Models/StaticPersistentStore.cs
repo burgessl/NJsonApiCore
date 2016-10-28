@@ -31,25 +31,28 @@ namespace NJsonApi.Web.MVCCore.HelloWorld.Models
             var person1 = new Person("Dan", "Gebhardt", "dgeb");
             var person2 = new Person("Rob", "Lang", "brainwipe");
 
-            var comment1 = new Comment("First!");
-            var comment2 = new Comment("I like XML Better");
-
             article1.Author = person1;
-            article1.Comments.Add(comment1);
-            article1.Comments.Add(comment2);
-            Articles.Add(article1);
-
             article2.Author = person2;
             Articles.Add(article2);
-
+            Articles.Add(article1);
             People.Add(person1);
             People.Add(person2);
 
-            comment1.Author = person1;
-            comment2.Author = person2;
+            for (var i = 0; i < 5000; i++)
+            {
 
-            Comments.Add(comment1);
-            Comments.Add(comment2);
+                var comment1 = new Comment($"First! + {i}");
+                var comment2 = new Comment($"I like XML Better + {i}");
+
+                article1.Comments.Add(comment1);
+                article1.Comments.Add(comment2);
+
+                comment1.Author = person1;
+                comment2.Author = person2;
+
+                Comments.Add(comment1);
+                Comments.Add(comment2);
+            }
         }
 
         public static int GetNextId()
